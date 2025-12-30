@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
 import api from '../lib/api';
 import { Transaction, Account, Category } from '../types';
-import { Plus, Pencil, Trash2, ArrowUpCircle, ArrowDownCircle, Filter, X } from 'lucide-react';
+import { Pencil, Trash2, ArrowUpCircle, ArrowDownCircle, Filter, X } from 'lucide-react';
 import './TransactionsPage.css';
 
 export default function TransactionsPage() {
@@ -57,21 +57,6 @@ export default function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  }
-
-  function openCreateModal() {
-    setEditingTransaction(null);
-    setFormData({
-      description: '',
-      amount: '',
-      type: 'expense',
-      date: new Date().toISOString().split('T')[0],
-      time: new Date().toTimeString().slice(0, 5),
-      isPaid: true,
-      accountId: accounts[0]?.id || '',
-      categoryId: '',
-    });
-    setShowModal(true);
   }
 
   function openEditModal(transaction: Transaction) {
@@ -193,15 +178,11 @@ export default function TransactionsPage() {
     <Layout>
       <div className="transactions-page">
         <div className="page-header">
-          <h1 className="page-title">Transações</h1>
+          <h1 className="page-title">Relatório de Transações</h1>
           <div className="header-actions">
             <button className="btn-secondary" onClick={() => setShowFilters(!showFilters)}>
               <Filter size={20} />
               Filtros
-            </button>
-            <button className="btn-primary" onClick={openCreateModal}>
-              <Plus size={20} />
-              Nova Transação
             </button>
           </div>
         </div>

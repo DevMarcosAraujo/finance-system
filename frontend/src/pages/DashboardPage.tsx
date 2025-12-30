@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
 import api from '../lib/api';
+import { Account, Category } from '../types';
 import {
   TrendingUp,
   TrendingDown,
@@ -9,7 +10,8 @@ import {
   PieChart as PieChartIcon,
   BarChart3,
   Upload,
-  Calendar
+  Calendar,
+  Plus
 } from 'lucide-react';
 import './DashboardPage.css';
 
@@ -44,6 +46,17 @@ export default function DashboardPage() {
   // Upload de arquivo
   const [uploadingFile, setUploadingFile] = useState(false);
 
+  // Formulário rápido
+  const [accounts, setAccounts] = useState<Account[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [quickForm, setQuickForm] = useState({
+    description: '',
+    amount: '',
+    type: 'expense' as 'income' | 'expense',
+    accountId: '',
+    categoryId: '',
+  });
+
   const months = [
     'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -51,6 +64,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     loadDashboardData();
+    loadFormData();
   }, [selectedYear, selectedMonth, viewMode]);
 
   async function loadDashboardData() {
@@ -76,6 +90,58 @@ export default function DashboardPage() {
       console.error('Erro ao carregar dashboard:', error);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadFormData() {
+    try {
+      const [accountsRes, categoriesRes] = await Promise.all([
+        api.get('/accounts'),
+        api.get('/categories'),
+      ]);
+      setAccounts(Array.isArray(accountsRes.data) ? accountsRes.data : []);
+      setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
+
+      // Definir conta padrão
+      const defaultAccount = accountsRes.data[0];
+      if (defaultAccount) {
+        setQuickForm(prev => ({ ...prev, accountId: defaultAccount.id }));
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados do formulário:', error);
+    }
+  }
+
+  async function handleQuickSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const data = {
+        description: quickForm.description,
+        amount: parseFloat(quickForm.amount),
+        type: quickForm.type,
+        date: new Date().toISOString(),
+        isPaid: true,
+        accountId: quickForm.accountId,
+        categoryId: quickForm.categoryId || undefined,
+      };
+
+      await api.post('/transactions', data);
+
+      // Limpar formulário
+      setQuickForm({
+        description: '',
+        amount: '',
+        type: 'expense',
+        accountId: accounts[0]?.id || '',
+        categoryId: '',
+      });
+
+      // Recarregar dashboard
+      loadDashboardData();
+      alert('Transação adicionada com sucesso!');
+    } catch (error: any) {
+      console.error('Erro ao adicionar transação:', error);
+      alert(error.response?.data?.error || 'Erro ao adicionar transação');
     }
   }
 
@@ -158,6 +224,97 @@ export default function DashboardPage() {
               />
             </label>
           </div>
+        </div>
+
+        <div className="quick-transaction-form">
+          <h2>Adicionar Transação Rápida</h2>
+          <form onSubmit={handleQuickSubmit}>
+            <div className="quick-form-grid">
+              <div className="form-group">
+                <label>Tipo</label>
+                <div className="type-selector">
+                  <button
+                    type="button"
+                    className={quickForm.type === 'expense' ? 'active expense' : 'expense'}
+                    onClick={() => setQuickForm({ ...quickForm, type: 'expense', categoryId: '' })}
+                  >
+                    <TrendingDown size={18} />
+                    Despesa
+                  </button>
+                  <button
+                    type="button"
+                    className={quickForm.type === 'income' ? 'active income' : 'income'}
+                    onClick={() => setQuickForm({ ...quickForm, type: 'income', categoryId: '' })}
+                  >
+                    <TrendingUp size={18} />
+                    Receita
+                  </button>
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Descrição</label>
+                <input
+                  type="text"
+                  value={quickForm.description}
+                  onChange={(e) => setQuickForm({ ...quickForm, description: e.target.value })}
+                  placeholder="Ex: Almoço, Salário..."
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Valor</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={quickForm.amount}
+                  onChange={(e) => setQuickForm({ ...quickForm, amount: e.target.value })}
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Conta</label>
+                <select
+                  value={quickForm.accountId}
+                  onChange={(e) => setQuickForm({ ...quickForm, accountId: e.target.value })}
+                  required
+                >
+                  {accounts.map((account) => (
+                    <option key={account.id} value={account.id}>
+                      {account.bank ? `${account.bank} - ${account.name}` : account.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>Categoria (Opcional)</label>
+                <select
+                  value={quickForm.categoryId}
+                  onChange={(e) => setQuickForm({ ...quickForm, categoryId: e.target.value })}
+                >
+                  <option value="">Sem categoria</option>
+                  {categories
+                    .filter((c) => c.type === quickForm.type)
+                    .map((category) => (
+                      <option key={category.id} value={category.id}>
+                        {category.name}{category.company ? ` - ${category.company}` : ''}
+                      </option>
+                    ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <button type="submit" className="btn-primary quick-submit">
+                  <Plus size={18} />
+                  Adicionar
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
 
         <div className="filters-row">
