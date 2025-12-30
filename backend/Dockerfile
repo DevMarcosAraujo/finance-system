@@ -1,6 +1,9 @@
 # Dockerfile para o Backend
 FROM node:18-alpine
 
+# Instalar OpenSSL
+RUN apk add --no-cache openssl
+
 WORKDIR /app
 
 # Copiar package files
