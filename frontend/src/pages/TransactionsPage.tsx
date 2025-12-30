@@ -44,7 +44,9 @@ export default function TransactionsPage() {
         api.get('/categories'),
       ]);
 
-      setTransactions(Array.isArray(transactionsRes.data) ? transactionsRes.data : []);
+      // A API de transações retorna { transactions: [], pagination: {} }
+      const transactionsData = transactionsRes.data.transactions || transactionsRes.data;
+      setTransactions(Array.isArray(transactionsData) ? transactionsData : []);
       setAccounts(Array.isArray(accountsRes.data) ? accountsRes.data : []);
       setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
     } catch (error) {
