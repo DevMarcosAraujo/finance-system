@@ -64,8 +64,14 @@ router.get('/', async (req, res) => {
       prisma.transaction.count({ where }),
     ]);
 
+    // Converter Decimal para número
+    const formattedTransactions = transactions.map(t => ({
+      ...t,
+      amount: Number(t.amount),
+    }));
+
     res.json({
-      transactions,
+      transactions: formattedTransactions,
       pagination: {
         page: Number(page),
         limit: Number(limit),
