@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
 import api from '../lib/api';
-import { TrendingUp, TrendingDown, DollarSign, PieChart } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, PieChart, Printer, FileDown } from 'lucide-react';
 import './ReportsPage.css';
 
 interface CategoryReport {
@@ -25,6 +25,7 @@ export default function ReportsPage() {
   const [monthlyReports, setMonthlyReports] = useState<MonthlyReport[]>([]);
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [periodType, setPeriodType] = useState<'weekly' | 'biweekly' | 'monthly'>('monthly');
 
   useEffect(() => {
     loadReports();
@@ -69,6 +70,26 @@ export default function ReportsPage() {
     'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
   ];
 
+  function handlePrint() {
+    window.print();
+  }
+
+  function handleExportPDF() {
+    // Trigger print dialog which allows saving as PDF
+    window.print();
+  }
+
+  function getPeriodLabel() {
+    switch (periodType) {
+      case 'weekly':
+        return 'Semanal';
+      case 'biweekly':
+        return 'Quinzenal';
+      case 'monthly':
+        return 'Mensal';
+    }
+  }
+
   if (loading) {
     return (
       <Layout>
@@ -80,9 +101,32 @@ export default function ReportsPage() {
   return (
     <Layout>
       <div className="reports-page">
-        <h1 className="page-title">Relatórios</h1>
+        <div className="page-header">
+          <h1 className="page-title">Relatórios</h1>
+          <div className="header-actions">
+            <button className="btn-secondary" onClick={handlePrint}>
+              <Printer size={20} />
+              Imprimir
+            </button>
+            <button className="btn-primary" onClick={handleExportPDF}>
+              <FileDown size={20} />
+              Exportar PDF
+            </button>
+          </div>
+        </div>
 
         <div className="filters">
+          <div className="filter-group">
+            <label>Período</label>
+            <select
+              value={periodType}
+              onChange={(e) => setPeriodType(e.target.value as any)}
+            >
+              <option value="weekly">Semanal</option>
+              <option value="biweekly">Quinzenal</option>
+              <option value="monthly">Mensal</option>
+            </select>
+          </div>
           <div className="filter-group">
             <label>Ano</label>
             <select
@@ -109,6 +153,10 @@ export default function ReportsPage() {
               ))}
             </select>
           </div>
+        </div>
+
+        <div className="period-info">
+          Visualizando: Relatório {getPeriodLabel()} - {months[selectedMonth - 1]} de {selectedYear}
         </div>
 
         <div className="summary-cards">

@@ -3,6 +3,34 @@
   margin: 0 auto;
 }
 
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.header-actions button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.period-info {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 .filters {
   display: flex;
   gap: 1rem;
@@ -225,5 +253,39 @@
 
   .filter-group select {
     width: 100%;
+  }
+}
+
+/* Estilos para impressão */
+@media print {
+  .header-actions,
+  .filters {
+    display: none !important;
+  }
+
+  .period-info {
+    background: #667eea !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .summary-card {
+    break-inside: avoid;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .report-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .reports-page {
+    max-width: 100%;
+  }
+
+  body {
+    margin: 0;
+    padding: 20px;
   }
 }
