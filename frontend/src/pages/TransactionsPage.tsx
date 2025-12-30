@@ -18,6 +18,7 @@ export default function TransactionsPage() {
     amount: '',
     type: 'expense',
     date: new Date().toISOString().split('T')[0],
+    time: new Date().toTimeString().slice(0, 5), // HH:MM
     isPaid: true,
     accountId: '',
     categoryId: '',
@@ -63,6 +64,7 @@ export default function TransactionsPage() {
       amount: '',
       type: 'expense',
       date: new Date().toISOString().split('T')[0],
+      time: new Date().toTimeString().slice(0, 5),
       isPaid: true,
       accountId: accounts[0]?.id || '',
       categoryId: '',
@@ -72,11 +74,13 @@ export default function TransactionsPage() {
 
   function openEditModal(transaction: Transaction) {
     setEditingTransaction(transaction);
+    const transactionDate = new Date(transaction.date);
     setFormData({
       description: transaction.description,
       amount: transaction.amount.toString(),
       type: transaction.type,
-      date: new Date(transaction.date).toISOString().split('T')[0],
+      date: transactionDate.toISOString().split('T')[0],
+      time: transactionDate.toTimeString().slice(0, 5),
       isPaid: transaction.isPaid,
       accountId: transaction.accountId || '',
       categoryId: transaction.categoryId || '',
@@ -92,9 +96,17 @@ export default function TransactionsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     try {
+      // Combinar data e hora em formato ISO
+      const dateTime = new Date(`${formData.date}T${formData.time}:00`);
+
       const data = {
-        ...formData,
+        description: formData.description,
         amount: parseFloat(formData.amount),
+        type: formData.type,
+        date: dateTime.toISOString(),
+        isPaid: formData.isPaid,
+        accountId: formData.accountId,
+        categoryId: formData.categoryId,
       };
 
       if (editingTransaction) {
@@ -328,7 +340,8 @@ export default function TransactionsPage() {
                       </span>
                       <span className="account-badge">{getAccountName(transaction.accountId || '')}</span>
                       <span className="date-badge">
-                        {new Date(transaction.date).toLocaleDateString('pt-BR')}
+                        {new Date(transaction.date).toLocaleDateString('pt-BR')} às{' '}
+                        {new Date(transaction.date).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                       </span>
                       {!transaction.isPaid && <span className="unpaid-badge">Não Pago</span>}
                     </div>
@@ -445,6 +458,18 @@ export default function TransactionsPage() {
                     />
                   </div>
 
+                  <div className="form-group">
+                    <label>Hora</label>
+                    <input
+                      type="time"
+                      value={formData.time}
+                      onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="form-row">
                   <div className="form-group checkbox-group">
                     <label>
                       <input
