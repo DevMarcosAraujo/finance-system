@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Modelo de Usuário
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  accounts     Account[]
+  transactions Transaction[]
+  categories   Category[]
+  budgets      Budget[]
+
+  @@map("users")
+}
+
+// Modelo de Conta/Carteira
+model Account {
+  id            String   @id @default(uuid())
+  name          String
+  type          String   // "checking", "savings", "credit_card", "cash"
+  balance       Decimal  @default(0) @db.Decimal(15, 2)
+  currency      String   @default("BRL")
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relações
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+// Modelo de Categoria
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  type      String   // "income" ou "expense"
+  color     String?  // Cor em hexadecimal para UI
+  icon      String?  // Nome do ícone
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([userId, name, type])
+  @@map("categories")
+}
+
+// Modelo de Transação
+model Transaction {
+  id          String   @id @default(uuid())
+  description String
+  amount      Decimal  @db.Decimal(15, 2)
+  type        String   // "income" ou "expense"
+  date        DateTime @default(now())
+  isPaid      Boolean  @default(true)
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relações
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  accountId  String
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@map("transactions")
+  @@index([userId, date])
+  @@index([categoryId])
+}
+
+// Modelo de Orçamento
+model Budget {
+  id        String   @id @default(uuid())
+  amount    Decimal  @db.Decimal(15, 2)
+  month     Int      // 1-12
+  year      Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relações
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, categoryId, month, year])
+  @@map("budgets")
+}
