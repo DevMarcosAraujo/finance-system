@@ -266,7 +266,7 @@ export default function TransactionsPage() {
             <div>
               <span className="summary-label">Receitas</span>
               <span className="summary-value">
-                R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 1 })}
+                R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </span>
             </div>
           </div>
@@ -275,8 +275,8 @@ export default function TransactionsPage() {
             <div>
               <span className="summary-label">Despesas</span>
               <span className="summary-value">
-                R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 1})}
-              </span>git
+                R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </span>
             </div>
           </div>
           <div className={`summary-item balance ${balance >= 0 ? 'positive' : 'negative'}`}>
