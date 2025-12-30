@@ -425,7 +425,7 @@ export default function TransactionsPage() {
                       <option value="">Selecione uma conta</option>
                       {accounts.map((account) => (
                         <option key={account.id} value={account.id}>
-                          {account.name}
+                          {account.bank ? `${account.bank} - ${account.name}` : account.name}
                         </option>
                       ))}
                     </select>
@@ -442,7 +442,7 @@ export default function TransactionsPage() {
                         .filter((c) => c.type === formData.type)
                         .map((category) => (
                           <option key={category.id} value={category.id}>
-                            {category.name}
+                            {category.name}{category.company ? ` - ${category.company}` : ''}
                           </option>
                         ))}
                     </select>

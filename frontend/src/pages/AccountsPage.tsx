@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Layout } from '../components/Layout';
+import { BankLogo } from '../components/BankLogo';
 import api from '../lib/api';
 import { Account } from '../types';
 import { Plus, Pencil, Trash2, CreditCard, Wallet, PiggyBank } from 'lucide-react';
@@ -13,6 +14,7 @@ export default function AccountsPage() {
   const [formData, setFormData] = useState({
     name: '',
     type: 'checking',
+    bank: '',
     balance: '',
   });
 
@@ -33,7 +35,7 @@ export default function AccountsPage() {
 
   function openCreateModal() {
     setEditingAccount(null);
-    setFormData({ name: '', type: 'checking', balance: '' });
+    setFormData({ name: '', type: 'checking', bank: '', balance: '' });
     setShowModal(true);
   }
 
@@ -42,6 +44,7 @@ export default function AccountsPage() {
     setFormData({
       name: account.name,
       type: account.type,
+      bank: account.bank || '',
       balance: account.balance.toString(),
     });
     setShowModal(true);
@@ -50,7 +53,7 @@ export default function AccountsPage() {
   function closeModal() {
     setShowModal(false);
     setEditingAccount(null);
-    setFormData({ name: '', type: 'checking', balance: '' });
+    setFormData({ name: '', type: 'checking', bank: '', balance: '' });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -142,10 +145,14 @@ export default function AccountsPage() {
             {accounts.map((account) => (
               <div key={account.id} className="account-card">
                 <div className="account-header">
-                  <div className="account-icon">{getAccountIcon(account.type)}</div>
+                  <div className="account-icon">
+                    {account.bank ? <BankLogo bank={account.bank} size={48} /> : getAccountIcon(account.type)}
+                  </div>
                   <div className="account-info">
                     <h3>{account.name}</h3>
-                    <span className="account-type">{getAccountTypeLabel(account.type)}</span>
+                    <span className="account-type">
+                      {account.bank || getAccountTypeLabel(account.type)}
+                    </span>
                   </div>
                 </div>
                 <div className="account-balance">
@@ -199,6 +206,22 @@ export default function AccountsPage() {
                     <option value="savings">Poupança</option>
                     <option value="credit_card">Cartão de Crédito</option>
                     <option value="cash">Dinheiro</option>
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Banco (Opcional)</label>
+                  <select
+                    value={formData.bank}
+                    onChange={(e) => setFormData({ ...formData, bank: e.target.value })}
+                  >
+                    <option value="">Selecione um banco</option>
+                    <option value="Banco do Brasil">Banco do Brasil</option>
+                    <option value="Caixa">Caixa Econômica Federal</option>
+                    <option value="Bradesco">Bradesco</option>
+                    <option value="Itaú">Itaú</option>
+                    <option value="Santander">Santander</option>
+                    <option value="Nubank">Nubank</option>
                   </select>
                 </div>
 

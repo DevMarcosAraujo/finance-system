@@ -13,6 +13,7 @@ export default function CategoriesPage() {
   const [formData, setFormData] = useState({
     name: '',
     type: 'expense',
+    company: '',
     color: '#667eea',
   });
 
@@ -39,7 +40,7 @@ export default function CategoriesPage() {
 
   function openCreateModal() {
     setEditingCategory(null);
-    setFormData({ name: '', type: 'expense', color: '#667eea' });
+    setFormData({ name: '', type: 'expense', company: '', color: '#667eea' });
     setShowModal(true);
   }
 
@@ -48,6 +49,7 @@ export default function CategoriesPage() {
     setFormData({
       name: category.name,
       type: category.type,
+      company: category.company || '',
       color: category.color || '#667eea',
     });
     setShowModal(true);
@@ -56,7 +58,7 @@ export default function CategoriesPage() {
   function closeModal() {
     setShowModal(false);
     setEditingCategory(null);
-    setFormData({ name: '', type: 'expense', color: '#667eea' });
+    setFormData({ name: '', type: 'expense', company: '', color: '#667eea' });
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -136,6 +138,9 @@ export default function CategoriesPage() {
                         </div>
                         <div className="category-info">
                           <h3>{category.name}</h3>
+                          {category.company && (
+                            <span className="category-company">{category.company}</span>
+                          )}
                         </div>
                       </div>
                       <div className="category-actions">
@@ -179,6 +184,9 @@ export default function CategoriesPage() {
                         </div>
                         <div className="category-info">
                           <h3>{category.name}</h3>
+                          {category.company && (
+                            <span className="category-company">{category.company}</span>
+                          )}
                         </div>
                       </div>
                       <div className="category-actions">
@@ -232,6 +240,18 @@ export default function CategoriesPage() {
                     <option value="income">Receita</option>
                   </select>
                 </div>
+
+                {formData.type === 'income' && (
+                  <div className="form-group">
+                    <label>Empresa (Opcional - para Salário)</label>
+                    <input
+                      type="text"
+                      value={formData.company}
+                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      placeholder="Ex: Google, Microsoft, Freelancer..."
+                    />
+                  </div>
+                )}
 
                 <div className="form-group">
                   <label>Cor</label>

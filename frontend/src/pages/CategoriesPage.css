@@ -58,6 +58,14 @@
   color: #1a202c;
 }
 
+.category-company {
+  display: block;
+  font-size: 0.75rem;
+  color: #718096;
+  margin-top: 0.25rem;
+  font-weight: 600;
+}
+
 .category-actions {
   display: flex;
   gap: 0.5rem;

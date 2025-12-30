@@ -9,6 +9,7 @@ export interface Account {
   id: string;
   name: string;
   type: 'checking' | 'savings' | 'credit_card' | 'cash';
+  bank?: string;
   balance: number;
   currency: string;
   isActive: boolean;
@@ -20,6 +21,7 @@ export interface Category {
   id: string;
   name: string;
   type: 'income' | 'expense';
+  company?: string;
   color?: string;
   icon?: string;
   createdAt: string;

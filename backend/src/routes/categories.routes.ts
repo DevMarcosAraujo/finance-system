@@ -14,6 +14,7 @@ const categorySchema = z.object({
   type: z.enum(['income', 'expense'], {
     errorMap: () => ({ message: 'Tipo deve ser income ou expense' }),
   }),
+  company: z.string().optional(),
   color: z.string().optional(),
   icon: z.string().optional(),
 });

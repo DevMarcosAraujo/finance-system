@@ -33,6 +33,7 @@ model Account {
   id            String   @id @default(uuid())
   name          String
   type          String   // "checking", "savings", "credit_card", "cash"
+  bank          String?  // Nome do banco (Banco do Brasil, Caixa, Itaú, etc.)
   balance       Decimal  @default(0) @db.Decimal(15, 2)
   currency      String   @default("BRL")
   isActive      Boolean  @default(true)
@@ -52,6 +53,7 @@ model Category {
   id        String   @id @default(uuid())
   name      String
   type      String   // "income" ou "expense"
+  company   String?  // Nome da empresa (para categorias de salário)
   color     String?  // Cor em hexadecimal para UI
   icon      String?  // Nome do ícone
   createdAt DateTime @default(now())

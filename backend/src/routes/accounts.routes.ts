@@ -14,6 +14,7 @@ const accountSchema = z.object({
   type: z.enum(['checking', 'savings', 'credit_card', 'cash'], {
     errorMap: () => ({ message: 'Tipo de conta inválido' }),
   }),
+  bank: z.string().optional(),
   balance: z.number().optional(),
   currency: z.string().optional(),
 });
