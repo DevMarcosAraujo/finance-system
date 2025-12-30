@@ -43,11 +43,14 @@ export default function TransactionsPage() {
         api.get('/categories'),
       ]);
 
-      setTransactions(transactionsRes.data);
-      setAccounts(accountsRes.data);
-      setCategories(categoriesRes.data);
+      setTransactions(Array.isArray(transactionsRes.data) ? transactionsRes.data : []);
+      setAccounts(Array.isArray(accountsRes.data) ? accountsRes.data : []);
+      setCategories(Array.isArray(categoriesRes.data) ? categoriesRes.data : []);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      setTransactions([]);
+      setAccounts([]);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
