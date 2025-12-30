@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({
   origin: [
     'http://localhost:5173',
+    'https://finance-system-frontend-kkts.vercel.app',
     'https://finance-system-backend-1aiu-6sz0htb84.vercel.app',
     'https://finance-system-backend-1aiu-6sz0htb84.vercel.app/'
   ],
