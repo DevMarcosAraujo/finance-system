@@ -133,7 +133,7 @@ router.post('/', async (req, res) => {
     }
 
     // Criar transação e atualizar saldo da conta
-    const transaction = await prisma.$transaction(async (tx) => {
+    const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const newTransaction = await tx.transaction.create({
         data: {
           ...data,
@@ -153,7 +153,7 @@ router.post('/', async (req, res) => {
           where: { id: data.accountId },
           data: {
             balance: {
-              increment: new Prisma.Decimal(balanceChange),
+              increment: balanceChange,
             },
           },
         });
@@ -188,13 +188,13 @@ router.put('/:id', async (req, res) => {
     }
 
     // Atualizar transação e recalcular saldo se necessário
-    const transaction = await prisma.$transaction(async (tx) => {
+    const transaction = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Se o valor ou tipo mudou, ajustar saldo
       if ((data.amount !== undefined || data.type !== undefined) && existing.isPaid) {
         const oldAmount = existing.type === 'income' ? -Number(existing.amount) : Number(existing.amount);
         await tx.account.update({
           where: { id: existing.accountId },
-          data: { balance: { increment: new Prisma.Decimal(oldAmount) } },
+          data: { balance: { increment: oldAmount } },
         });
 
         const newAmount = (data.type || existing.type) === 'income'
@@ -202,7 +202,7 @@ router.put('/:id', async (req, res) => {
           : -(data.amount || Number(existing.amount));
         await tx.account.update({
           where: { id: existing.accountId },
-          data: { balance: { increment: new Prisma.Decimal(newAmount) } },
+          data: { balance: { increment: newAmount } },
         });
       }
 
@@ -242,13 +242,13 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Transação não encontrada' });
     }
 
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       // Reverter saldo se a transação estava paga
       if (existing.isPaid) {
         const balanceChange = existing.type === 'income' ? -Number(existing.amount) : Number(existing.amount);
         await tx.account.update({
           where: { id: existing.accountId },
-          data: { balance: { increment: new Prisma.Decimal(balanceChange) } },
+          data: { balance: { increment: balanceChange } },
         });
       }
 

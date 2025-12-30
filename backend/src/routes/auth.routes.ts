@@ -49,9 +49,11 @@ router.post('/register', async (req, res) => {
     });
 
     // Gerar token
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    });
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '7d' }
+    );
 
     res.status(201).json({ user, token });
   } catch (error) {
@@ -81,9 +83,11 @@ router.post('/login', async (req, res) => {
     }
 
     // Gerar token
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
-      expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-    });
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET as string,
+      { expiresIn: '7d' }
+    );
 
     res.json({
       user: {

@@ -77,7 +77,7 @@ router.get('/by-category', async (req, res) => {
     });
 
     const categoriesData = await Promise.all(
-      transactions.map(async (item) => {
+      transactions.map(async (item: any) => {
         const category = await prisma.category.findUnique({
           where: { id: item.categoryId },
           select: { name: true, color: true, icon: true },
@@ -137,7 +137,7 @@ router.get('/monthly', async (req, res) => {
       balance: 0,
     }));
 
-    transactions.forEach((t) => {
+    transactions.forEach((t: any) => {
       const month = t.date.getMonth();
       const amount = Number(t.amount);
 
