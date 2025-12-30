@@ -16,7 +16,7 @@ const transactionSchema = z.object({
   type: z.enum(['income', 'expense'], {
     errorMap: () => ({ message: 'Tipo deve ser income ou expense' }),
   }),
-  date: z.string().datetime().optional(),
+  date: z.string().optional(),
   isPaid: z.boolean().optional(),
   notes: z.string().optional(),
   accountId: z.string().uuid('ID da conta inválido'),
