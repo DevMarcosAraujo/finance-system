@@ -24,7 +24,7 @@ finance-system/
 ```
 
 ## 🚀 Como Executar
-
+pre
 ### Pré-requisitos
 - Node.js 18+
 - PostgreSQL 14+
