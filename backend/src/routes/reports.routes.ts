@@ -10,14 +10,28 @@ router.use(authMiddleware);
 // GET /api/reports/summary - Resumo financeiro
 router.get('/summary', async (req, res) => {
   try {
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, year, month } = req.query;
 
     const where: any = { userId: req.userId! };
 
-    if (startDate || endDate) {
+    if (startDate || endDate || year || month) {
       where.date = {};
-      if (startDate) where.date.gte = new Date(startDate as string);
-      if (endDate) where.date.lte = new Date(endDate as string);
+      if (startDate) {
+        where.date.gte = new Date(startDate as string);
+      }
+      if (endDate) {
+        where.date.lte = new Date(endDate as string);
+      }
+      if (year && month) {
+        const yearNum = Number(year);
+        const monthNum = Number(month);
+        where.date.gte = new Date(yearNum, monthNum - 1, 1);
+        where.date.lte = new Date(yearNum, monthNum, 0, 23, 59, 59);
+      } else if (year) {
+        const yearNum = Number(year);
+        where.date.gte = new Date(yearNum, 0, 1);
+        where.date.lte = new Date(yearNum, 11, 31, 23, 59, 59);
+      }
     }
 
     const [income, expense, transactionsCount] = await Promise.all([
@@ -51,22 +65,41 @@ router.get('/summary', async (req, res) => {
 // GET /api/reports/by-category - Gastos por categoria
 router.get('/by-category', async (req, res) => {
   try {
-    const { type = 'expense', startDate, endDate } = req.query;
+    const { type, startDate, endDate, year, month } = req.query;
 
     const where: any = {
       userId: req.userId!,
-      type: type as string,
       isPaid: true,
     };
 
-    if (startDate || endDate) {
+    // Adicionar filtro de tipo se especificado
+    if (type) {
+      where.type = type as string;
+    }
+
+    // Adicionar filtro de data
+    if (startDate || endDate || year || month) {
       where.date = {};
-      if (startDate) where.date.gte = new Date(startDate as string);
-      if (endDate) where.date.lte = new Date(endDate as string);
+      if (startDate) {
+        where.date.gte = new Date(startDate as string);
+      }
+      if (endDate) {
+        where.date.lte = new Date(endDate as string);
+      }
+      if (year && month) {
+        const yearNum = Number(year);
+        const monthNum = Number(month);
+        where.date.gte = new Date(yearNum, monthNum - 1, 1);
+        where.date.lte = new Date(yearNum, monthNum, 0, 23, 59, 59);
+      } else if (year) {
+        const yearNum = Number(year);
+        where.date.gte = new Date(yearNum, 0, 1);
+        where.date.lte = new Date(yearNum, 11, 31, 23, 59, 59);
+      }
     }
 
     const transactions = await prisma.transaction.groupBy({
-      by: ['categoryId'],
+      by: ['categoryId', 'type'],
       where,
       _sum: {
         amount: true,
@@ -83,19 +116,24 @@ router.get('/by-category', async (req, res) => {
           select: { name: true, color: true, icon: true },
         });
 
+        // Fazer despesas negativas, receitas positivas
+        const amount = Number(item._sum.amount || 0);
+        const total = item.type === 'expense' ? -amount : amount;
+
         return {
           categoryId: item.categoryId,
           categoryName: category?.name || 'Sem categoria',
           color: category?.color,
           icon: category?.icon,
-          total: Number(item._sum.amount || 0),
+          type: item.type,
+          total,
           count: item._count.id,
         };
       })
     );
 
-    // Ordenar por total decrescente
-    categoriesData.sort((a, b) => b.total - a.total);
+    // Ordenar por total decrescente (valor absoluto)
+    categoriesData.sort((a, b) => Math.abs(b.total) - Math.abs(a.total));
 
     res.json(categoriesData);
   } catch (error) {

@@ -85,7 +85,7 @@ export default function DashboardPage() {
       setTotalExpense(summaryRes.data.totalExpense || 0);
       setTransactionsCount(summaryRes.data.transactionsCount || 0);
       setCategoryReports(Array.isArray(categoryRes.data) ? categoryRes.data : []);
-      setMonthlyData(Array.isArray(monthlyRes.data) ? monthlyRes.data : []);
+      setMonthlyData(Array.isArray(monthlyRes.data.data) ? monthlyRes.data.data : []);
     } catch (error) {
       console.error('Erro ao carregar dashboard:', error);
     } finally {
